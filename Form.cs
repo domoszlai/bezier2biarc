@@ -38,7 +38,6 @@ namespace BiArcTutorial
         protected override void OnPaint(PaintEventArgs e)
         {
             var bezier = b4;
-
             var biarcs = Algorithm.ApproxCubicBezier(bezier, 5, 1);
 
             Graphics g = e.Graphics;

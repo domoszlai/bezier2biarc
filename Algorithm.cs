@@ -12,7 +12,14 @@ namespace BiArcTutorial
             return t.Imaginary == 0 && t.Real > 0 && t.Real < 1;
         }
 
-        public static List<BiArc> ApproxCubicBezier(CubicBezier bezier, float samplingDistance, float tolerance)
+        /// <summary>
+        /// Algorithm to approximate a bezier curve with biarcs
+        /// </summary>
+        /// <param name="bezier">The bezier curve to be approximated.</param>
+        /// <param name="samplingStep">The sampling step used for calculating the approximation error. The length of the arc is divided by this number to get the number of sampling points.</param>
+        /// <param name="tolerance">The approximation is accepted if the maximum devation at the sampling points is smaller than this number.</param>
+        /// <returns></returns>
+        public static List<BiArc> ApproxCubicBezier(CubicBezier bezier, float samplingStep, float tolerance)
         {
             // The result will be put here
             List<BiArc> biarcs = new List<BiArc>();
@@ -106,7 +113,7 @@ namespace BiArcTutorial
                 var maxDistance = 0f;
                 var maxDistanceAt = 0f;
 
-                var nrPointsToCheck = biarc.Length / samplingDistance;
+                var nrPointsToCheck = biarc.Length / samplingStep;
                 var parameterStep = 1f / nrPointsToCheck;
 
                 for (int i = 0; i <= nrPointsToCheck; i++)
