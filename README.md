@@ -5,7 +5,7 @@ The algorithm will also be available in Haskell, incorporated into my [JuicyGcod
 
 ## Implementation
 
-The algorithm will be explained in a future blog post at dlacko.blogspot.com.
+The algorithm will be explained in the blog post at [http://dlacko.blogspot.com/2016/10/on-approximation-of-bezier-curves-by.html](http://dlacko.blogspot.com/2016/10/on-approximation-of-bezier-curves-by.html)
 
 ## Usage
 
