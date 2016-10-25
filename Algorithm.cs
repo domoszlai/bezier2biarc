@@ -40,14 +40,14 @@ namespace BiArcTutorial
             if (i1 && !i2)
             {
                 var splited = toSplit.Split((float)inflex.Item1.Real);
-                curves.Push(splited.Item1);
                 curves.Push(splited.Item2);
+                curves.Push(splited.Item1);
             }
             else if (!i1 && i2)
             {
                 var splited = toSplit.Split((float)inflex.Item2.Real);
-                curves.Push(splited.Item1);
                 curves.Push(splited.Item2);
+                curves.Push(splited.Item1);
             }
             else if (i1 && i2)
             {
@@ -66,14 +66,15 @@ namespace BiArcTutorial
                 // at the recalculated t2 (it is on a new curve)
 
                 var splited1 = toSplit.Split(t1);
-                curves.Push(splited1.Item1);
 
                 t2 = (1 - t1) * t2;
 
                 toSplit = splited1.Item2;
                 var splited2 = toSplit.Split(t2);
-                curves.Push(splited2.Item1);
+
                 curves.Push(splited2.Item2);
+                curves.Push(splited2.Item1);
+                curves.Push(splited1.Item1);
             }
             else
             {
@@ -119,7 +120,9 @@ namespace BiArcTutorial
                 for (int i = 0; i <= nrPointsToCheck; i++)
                 {
                     var t = parameterStep * i;
-                    var distance = (biarc.PointAt(t) - bezier.PointAt(t)).Length();
+                    var u1 = biarc.PointAt(t);
+                    var u2 = bezier.PointAt(t);
+                    var distance = (u1 - u2).Length();
 
                     if (distance > maxDistance)
                     {
@@ -134,8 +137,8 @@ namespace BiArcTutorial
                     // If not, split the bezier curve the point where the distance is the maximum
                     // and try again with the two halfs
                     var bs = bezier.Split(maxDistanceAt);
-                    curves.Push(bs.Item1);
                     curves.Push(bs.Item2);
+                    curves.Push(bs.Item1);
                 }
                 else
                 {
