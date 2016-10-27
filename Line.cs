@@ -4,7 +4,7 @@ using System.Numerics;
 namespace BiArcTutorial
 {
     /// <summary>
-    /// Defines a line with the equation y = m*x + b
+    /// Defines a line in point-slope form: y - y1 = m * (x - x1)
     /// </summary>
     public struct Line
     {
@@ -13,9 +13,9 @@ namespace BiArcTutorial
         /// </summary>
         public readonly float m;
         /// <summary>
-        /// Y-intercept
+        /// Point
         /// </summary>
-        public readonly float b;
+        public readonly Vector2 P;
 
         /// <summary>
         /// Define a line by two points
@@ -31,19 +31,10 @@ namespace BiArcTutorial
         /// </summary>
         /// <param name="P"></param>
         /// <param name="m"></param>
-        public Line(Vector2 P, float m) : this(m, P.Y - m * P.X)
+        public Line(Vector2 P, float m)
         {
-        }
-
-        /// <summary>
-        /// Define a line by slope and y-intercept
-        /// </summary>
-        /// <param name="m"></param>
-        /// <param name="b"></param>
-        public Line(float m, float b)
-        {
+            this.P = P;
             this.m = m;
-            this.b = b;
         }
 
         /// <summary>
@@ -53,28 +44,41 @@ namespace BiArcTutorial
         /// <returns></returns>
         public Vector2 Intersection(Line l)
         {
-            var x = (this.b - l.b) / (l.m - this.m);
-            var y = m * x + b;
+            var x = (this.m * this.P.X - l.m * l.P.X - this.P.Y + l.P.Y) / (this.m - l.m);
+            var y = m * x - m * P.X + P.Y;
             return new Vector2(x, y);
         }
 
-        public double Angle
+        /// <summary>
+        /// Creates a a line which is perpendicular to the line defined by P and P1 and goes through P
+        /// </summary>
+        /// <param name="P"></param>
+        /// <param name="P1"></param>
+        /// <returns></returns>
+        public static Line CreatePerpendicularAt(Vector2 P, Vector2 P1)
         {
-            get
-            {
-                var a = Math.Atan(m);
-                return a < 0 ? a + Math.PI : a;
-            }
-        }
+            var m = Slope(P, P1);
 
-        public float y(float x)
-        {
-            return m * x + b;
+            if (m == 0)
+            {
+                return new Line(P, 0);
+            }
+            else
+            {
+                return new Line(P, -1f / m);
+            }
         }
 
         public static float Slope(Vector2 P1, Vector2 P2)
         {
-            return (P2.Y - P1.Y) / (P2.X - P1.X);
+            if(P2.X == P1.X)
+            {
+                return 0;
+            }
+            else
+            {
+                return (P2.Y - P1.Y) / (P2.X - P1.X);
+            }
         }
     }
 }

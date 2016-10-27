@@ -28,15 +28,15 @@ namespace BiArcTutorial
             var cw = sum < 0;
 
             // Calculate perpendicular lines to the tangent at P1 and P2
-            var tl1 = new Line(P1, 1f / -(T1.Y / T1.X));
-            var tl2 = new Line(P2, 1f / -(T2.Y / T2.X));
+            var tl1 = Line.CreatePerpendicularAt(P1, P1 + T1);
+            var tl2 = Line.CreatePerpendicularAt(P2, P2 + T2);
 
             // Calculate the perpendicular bisector of P1T and P2T
             var P1T2 = (P1 + T) / 2;
-            var pbP1T = new Line(P1T2, 1f / -Line.Slope(P1, T));
+            var pbP1T = Line.CreatePerpendicularAt(P1T2, T);
 
             var P2T2 = (P2 + T) / 2;
-            var pbP2T = new Line(P2T2, 1f / -Line.Slope(P2, T));
+            var pbP2T = Line.CreatePerpendicularAt(P2T2, T);
 
             // The origo of the circles are at the intersection points
             var C1 = tl1.Intersection(pbP1T);

@@ -34,6 +34,15 @@ namespace BiArcTutorial
         CubicBezier b4 = new CubicBezier(
             new Vector2(100, 500), new Vector2(350, 100), new Vector2(100, 200), new Vector2(500, 400));
 
+        // Corner case 1
+        CubicBezier bt1 = new CubicBezier(
+            new Vector2(233.89831f, 285.0169000000001f), new Vector2(233.89831f, 293.0169000000001f),
+            new Vector2(230.5649766666668f, 301.0169000000001f), new Vector2(223.89831f, 309.0169000000001f));
+
+        // Corner case 2
+        CubicBezier bt2 = new CubicBezier(
+            new Vector2(204.89831f, 328.0169f), new Vector2(198.89831f ,334.0169f),
+            new Vector2(191.2316433333334f, 337.0169f), new Vector2(181.89831f, 337.0169f));
 
         protected override void OnPaint(PaintEventArgs e)
         {
