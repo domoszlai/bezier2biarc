@@ -5,6 +5,8 @@ namespace BiArcTutorial
 {
     /// <summary>
     /// Defines a line in point-slope form: y - y1 = m * (x - x1)
+    /// Vertical line: m = NaN
+    /// Horizontal line: m = 0
     /// </summary>
     public struct Line
     {
@@ -44,8 +46,33 @@ namespace BiArcTutorial
         /// <returns></returns>
         public Vector2 Intersection(Line l)
         {
-            var x = (this.m * this.P.X - l.m * l.P.X - this.P.Y + l.P.Y) / (this.m - l.m);
-            var y = m * x - m * P.X + P.Y;
+            if(float.IsNaN(this.m))
+            {
+                return VerticalIntersection(this, l);
+            }
+            else if(float.IsNaN(l.m))
+            {
+                return VerticalIntersection(l, this);
+            }
+            else
+            {
+                var x = (this.m * this.P.X - l.m * l.P.X - this.P.Y + l.P.Y) / (this.m - l.m);
+                var y = m * x - m * P.X + P.Y;
+                return new Vector2(x, y);
+            }
+        }
+
+        /// <summary>
+        /// Special case, the first one is vertical (we suppose that the other one is not, 
+        /// otherwise they do not cross)
+        /// </summary>
+        /// <param name="hl"></param>
+        /// <param name="l"></param>
+        /// <returns></returns>
+        private static Vector2 VerticalIntersection(Line vl, Line l)
+        {
+            var x = vl.P.X;
+            var y = l.m * (x - l.P.X) + l.P.Y;
             return new Vector2(x, y);
         }
 
@@ -61,6 +88,10 @@ namespace BiArcTutorial
 
             if (m == 0)
             {
+                return new Line(P, float.NaN);
+            }
+            else if(float.IsNaN(m))
+            {
                 return new Line(P, 0);
             }
             else
@@ -69,16 +100,17 @@ namespace BiArcTutorial
             }
         }
 
-        public static float Slope(Vector2 P1, Vector2 P2)
+        private static float Slope(Vector2 P1, Vector2 P2)
         {
             if(P2.X == P1.X)
             {
-                return 0;
+                return float.NaN;
             }
             else
             {
                 return (P2.Y - P1.Y) / (P2.X - P1.X);
             }
         }
+
     }
 }
