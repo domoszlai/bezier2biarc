@@ -1,4 +1,9 @@
-﻿## Synopsis
+﻿Bezier curve approximation algorithm with biarcs
+==================================
+
+![Appveyor](https://ci.appveyor.com/api/projects/status/github/domoszlai/bezier2biarc?branch=master&svg=true)
+
+## Synopsis
 
 Simple C# application to illustrate the algorithm of approximating a cubic bezier curve with biarcs.
 The algorithm will also be available in Haskell, incorporated into my [JuicyGcode](https://github.com/domoszlai/svg2gcode) project.
