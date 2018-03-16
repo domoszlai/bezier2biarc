@@ -1,4 +1,4 @@
-﻿Bezier curve approximation algorithm with biarcs
+Bezier curve approximation algorithm with biarcs
 ==================================
 
 ![Appveyor](https://ci.appveyor.com/api/projects/status/github/domoszlai/bezier2biarc?branch=master&svg=true)
@@ -10,7 +10,7 @@ The algorithm will also be available in Haskell, incorporated into my [JuicyGcod
 
 ## Implementation
 
-The algorithm will be explained in the blog post at [http://dlacko.blogspot.nl/2016/10/approximating-bezier-curves-by-biarcs.html](http://dlacko.blogspot.nl/2016/10/approximating-bezier-curves-by-biarcs.html)
+The algorithm will be explained in the blog post at http://dlacko.org/blog/2016/10/19/approximating-bezier-curves-by-biarcs/.
 
 ## Usage
 
@@ -23,4 +23,3 @@ The application draws the original bezier curve (black color), the approximation
 ## Installation
 
 Use the community edition of Visual Studio 2015 to run it.
-
