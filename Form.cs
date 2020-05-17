@@ -48,6 +48,14 @@ namespace BiArcTutorial
             new Vector2(199, 135), new Vector2(199, 134),
             new Vector2(210, 134), new Vector2(211, 134));
 
+        // Start- and endpoint are very close
+        CubicBezier bt4a = new CubicBezier(
+            new Vector2(100, 500), new Vector2(150, 100), new Vector2(500, 150), new Vector2(100, 501));
+
+        // Start- and endpoint are the same
+        CubicBezier bt4b = new CubicBezier(
+            new Vector2(100, 500), new Vector2(150, 100), new Vector2(500, 150), new Vector2(100, 500));
+
         protected override void OnPaint(PaintEventArgs e)
         {
             var bezier = b1;
