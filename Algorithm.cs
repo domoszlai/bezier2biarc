@@ -113,6 +113,16 @@ namespace BiArcTutorial
 
                 var T1 = new Line(bezier.P1, C1);
                 var T2 = new Line(bezier.P2, C2);
+
+                // Edge case: control lines are parallel
+                if(T1.m == T2.m)
+                {
+                    var bs = bezier.Split(0.5f);
+                    curves.Push(bs.Item2);
+                    curves.Push(bs.Item1);
+                    continue;
+                }
+
                 var V = T1.Intersection(T2);
 
                 // G: incenter point of the triangle (P1, V, P2)

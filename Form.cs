@@ -70,9 +70,19 @@ namespace BiArcTutorial
                 new Vector2(707.1606427464568f, 525.3817351181102f), new Vector2(707.1606427464568f, 530.9360248818898f),
                 new Vector2(705.5107854236222f, 566.1900878740157f), new Vector2(705.5107854236222f, 566.1900878740157f));
 
+        // NaN inflexion points
+        CubicBezier bt6 = new CubicBezier(
+                new Vector2(587.889221329134f, 482.32148314960625f), new Vector2(587.889221329134f, 485.32147370078735f),
+                new Vector2(585.639221329134f, 486.07146425196845f), new Vector2(584.8892307779529f, 488.32146425196845f));
+
+        // Parallel control lines
+        CubicBezier bt7 = new CubicBezier(
+                new Vector2(600, 400), new Vector2(500, 400),
+                new Vector2(500, 476), new Vector2(600, 476));
+
     protected override void OnPaint(PaintEventArgs e)
         {
-            var bezier = b1;
+            var bezier = bt1;
             var biarcs = Algorithm.ApproxCubicBezier(bezier, 5, 1);
 
             Graphics g = e.Graphics;
