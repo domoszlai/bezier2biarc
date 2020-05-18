@@ -56,7 +56,17 @@ namespace BiArcTutorial
         CubicBezier bt4b = new CubicBezier(
             new Vector2(100, 500), new Vector2(150, 100), new Vector2(500, 150), new Vector2(100, 500));
 
-        protected override void OnPaint(PaintEventArgs e)
+        // P1 == C1
+        CubicBezier bt5a = new CubicBezier(
+                new Vector2(692.6091876283466f, 499.2999902362205f), new Vector2(692.6091876283466f, 499.2999902362205f),
+                new Vector2(707.1606427464568f, 519.8274453543307f), new Vector2(707.1606427464568f, 525.3817351181102f));
+
+        // P2 == C2
+        CubicBezier bt5b = new CubicBezier(
+                new Vector2(218.9202733234206f, 270.31665826771655f), new Vector2(214.46111610836238f, 268.53409417322837f),
+                new Vector2(187.8873352038994f, 259.04347370078744f), new Vector2(187.8873352038994f, 259.04347370078744f));
+
+    protected override void OnPaint(PaintEventArgs e)
         {
             var bezier = b1;
             var biarcs = Algorithm.ApproxCubicBezier(bezier, 5, 1);

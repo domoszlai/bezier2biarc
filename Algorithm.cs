@@ -32,53 +32,62 @@ namespace BiArcTutorial
             // First, calculate the inflexion points and split the bezier at them (if any)
 
             var toSplit = curves.Pop();
-            var inflex = toSplit.InflexionPoints;
 
-            var i1 = IsRealInflexionPoint(inflex.Item1);
-            var i2 = IsRealInflexionPoint(inflex.Item2);
-
-            if (i1 && !i2)
+            // Special cases, no inflexion points
+            if (toSplit.P1 == toSplit.C1 || toSplit.P2 == toSplit.C2)
             {
-                var splited = toSplit.Split((float)inflex.Item1.Real);
-                curves.Push(splited.Item2);
-                curves.Push(splited.Item1);
-            }
-            else if (!i1 && i2)
-            {
-                var splited = toSplit.Split((float)inflex.Item2.Real);
-                curves.Push(splited.Item2);
-                curves.Push(splited.Item1);
-            }
-            else if (i1 && i2)
-            {
-                var t1 = (float)inflex.Item1.Real;
-                var t2 = (float)inflex.Item2.Real;
-
-                // I'm not sure if I need, but it does not hurt to order them
-                if (t1 > t2)
-                {
-                    var tmp = t1;
-                    t1 = t2;
-                    t2 = tmp;
-                }
-
-                // Make the first split and save the first new curve. The second one has to be splitted again
-                // at the recalculated t2 (it is on a new curve)
-
-                var splited1 = toSplit.Split(t1);
-
-                t2 = (1 - t1) * t2;
-
-                toSplit = splited1.Item2;
-                var splited2 = toSplit.Split(t2);
-
-                curves.Push(splited2.Item2);
-                curves.Push(splited2.Item1);
-                curves.Push(splited1.Item1);
+                curves.Push(toSplit);
             }
             else
             {
-                curves.Push(toSplit);
+                var inflex = toSplit.InflexionPoints;
+
+                var i1 = IsRealInflexionPoint(inflex.Item1);
+                var i2 = IsRealInflexionPoint(inflex.Item2);
+
+                if (i1 && !i2)
+                {
+                    var splited = toSplit.Split((float)inflex.Item1.Real);
+                    curves.Push(splited.Item2);
+                    curves.Push(splited.Item1);
+                }
+                else if (!i1 && i2)
+                {
+                    var splited = toSplit.Split((float)inflex.Item2.Real);
+                    curves.Push(splited.Item2);
+                    curves.Push(splited.Item1);
+                }
+                else if (i1 && i2)
+                {
+                    var t1 = (float)inflex.Item1.Real;
+                    var t2 = (float)inflex.Item2.Real;
+
+                    // I'm not sure if I need, but it does not hurt to order them
+                    if (t1 > t2)
+                    {
+                        var tmp = t1;
+                        t1 = t2;
+                        t2 = tmp;
+                    }
+
+                    // Make the first split and save the first new curve. The second one has to be splitted again
+                    // at the recalculated t2 (it is on a new curve)
+
+                    var splited1 = toSplit.Split(t1);
+
+                    t2 = (1 - t1) * t2;
+
+                    toSplit = splited1.Item2;
+                    var splited2 = toSplit.Split(t2);
+
+                    curves.Push(splited2.Item2);
+                    curves.Push(splited2.Item1);
+                    curves.Push(splited1.Item1);
+                }
+                else
+                {
+                    curves.Push(toSplit);
+                }
             }
 
             // ---------------------------------------------------------------------------
@@ -100,9 +109,23 @@ namespace BiArcTutorial
                 // Calculate the transition point for the BiArc 
 
                 // V: Intersection point of tangent lines
-                var T1 = new Line(bezier.P1, bezier.C1);
-                var T2 = new Line(bezier.P2, bezier.C2);
-                var V = T1.Intersection(T2);
+                Vector2 V;
+
+                // In these special cases, ignore one of the control points
+                if (bezier.P1 == bezier.C1)
+                {
+                    V = bezier.C2;
+                }
+                else if (bezier.P2 == bezier.C2)
+                {
+                    V = bezier.C1;
+                }
+                else
+                {
+                    var T1 = new Line(bezier.P1, bezier.C1);
+                    var T2 = new Line(bezier.P2, bezier.C2);
+                    V = T1.Intersection(T2);
+                }
 
                 // G: incenter point of the triangle (P1, V, P2)
                 // http://www.mathopenref.com/coordincenter.html
