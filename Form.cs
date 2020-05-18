@@ -66,6 +66,10 @@ namespace BiArcTutorial
                 new Vector2(218.9202733234206f, 270.31665826771655f), new Vector2(214.46111610836238f, 268.53409417322837f),
                 new Vector2(187.8873352038994f, 259.04347370078744f), new Vector2(187.8873352038994f, 259.04347370078744f));
 
+        CubicBezier bt5c = new CubicBezier(
+                new Vector2(707.1606427464568f, 525.3817351181102f), new Vector2(707.1606427464568f, 530.9360248818898f),
+                new Vector2(705.5107854236222f, 566.1900878740157f), new Vector2(705.5107854236222f, 566.1900878740157f));
+
     protected override void OnPaint(PaintEventArgs e)
         {
             var bezier = b1;
@@ -73,18 +77,18 @@ namespace BiArcTutorial
 
             Graphics g = e.Graphics;
 
+            // The full approximation circles for better understanding
+            foreach (var biarc in biarcs)
+             {
+                 g.DrawEllipse(new Pen(Color.Green, 1),
+                     biarc.A1.C.X - biarc.A1.r, biarc.A1.C.Y - biarc.A1.r, 2 * biarc.A1.r, 2 * biarc.A1.r);
+                 g.DrawEllipse(new Pen(Color.Green, 1),
+                     biarc.A2.C.X - biarc.A2.r, biarc.A2.C.Y - biarc.A2.r, 2 * biarc.A2.r, 2 * biarc.A2.r);
+             }
+
             // Draw the original bezier
             g.DrawBezier(new Pen(Color.Black, 2),
                 AsPointF(bezier.P1), AsPointF(bezier.C1), AsPointF(bezier.C2), AsPointF(bezier.P2));
-            
-            // The full approximation circles for better understanding
-            foreach (var biarc in biarcs)
-            {
-                g.DrawEllipse(new Pen(Color.Green, 1),
-                    biarc.A1.C.X - biarc.A1.r, biarc.A1.C.Y - biarc.A1.r, 2 * biarc.A1.r, 2 * biarc.A1.r);
-                g.DrawEllipse(new Pen(Color.Green, 1),
-                    biarc.A2.C.X - biarc.A2.r, biarc.A2.C.Y - biarc.A2.r, 2 * biarc.A2.r, 2 * biarc.A2.r);
-            }
 
             // The approximation biarcs
             foreach (var biarc in biarcs)
@@ -96,7 +100,7 @@ namespace BiArcTutorial
                     biarc.A2.C.X - biarc.A2.r, biarc.A2.C.Y - biarc.A2.r, 2 * biarc.A2.r, 2 * biarc.A2.r, 
                     biarc.A2.startAngle * 180.0f / (float)Math.PI, biarc.A2.sweepAngle * 180.0f / (float)Math.PI);
             }    
-            
+
         }
     }
 }

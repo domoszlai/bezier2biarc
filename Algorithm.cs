@@ -33,8 +33,15 @@ namespace BiArcTutorial
 
             var toSplit = curves.Pop();
 
-            // Special cases, no inflexion points
-            if (toSplit.P1 == toSplit.C1 || toSplit.P2 == toSplit.C2)
+            // Edge case: P1 == P2 -> Split bezier
+            if (bezier.P1 == bezier.P2)
+            {
+                var bs = bezier.Split(0.5f);
+                curves.Push(bs.Item2);
+                curves.Push(bs.Item1);
+            }
+            // Edge case -> no inflexion points
+            else if (toSplit.P1 == toSplit.C1 || toSplit.P2 == toSplit.C2)
             {
                 curves.Push(toSplit);
             }
@@ -97,35 +104,16 @@ namespace BiArcTutorial
             {
                 bezier = curves.Pop();
 
-                // Edge case: P1 == P2 -> Split bezier
-                if (bezier.P1 == bezier.P2)
-                {
-                    var bs = bezier.Split(0.5f);
-                    curves.Push(bs.Item2);
-                    bezier = bs.Item1;
-                }
-
                 // ---------------------------------------------------------------------------
                 // Calculate the transition point for the BiArc 
 
                 // V: Intersection point of tangent lines
-                Vector2 V;
+                var C1 = bezier.P1 == bezier.C1 ? bezier.C2 : bezier.C1;
+                var C2 = bezier.P2 == bezier.C2 ? bezier.C1 : bezier.C2;
 
-                // In these special cases, ignore one of the control points
-                if (bezier.P1 == bezier.C1)
-                {
-                    V = bezier.C2;
-                }
-                else if (bezier.P2 == bezier.C2)
-                {
-                    V = bezier.C1;
-                }
-                else
-                {
-                    var T1 = new Line(bezier.P1, bezier.C1);
-                    var T2 = new Line(bezier.P2, bezier.C2);
-                    V = T1.Intersection(T2);
-                }
+                var T1 = new Line(bezier.P1, C1);
+                var T2 = new Line(bezier.P2, C2);
+                var V = T1.Intersection(T2);
 
                 // G: incenter point of the triangle (P1, V, P2)
                 // http://www.mathopenref.com/coordincenter.html
@@ -137,7 +125,7 @@ namespace BiArcTutorial
                 // ---------------------------------------------------------------------------
                 // Calculate the BiArc
 
-                BiArc biarc = new BiArc(bezier.P1, (bezier.P1 - bezier.C1), bezier.P2, (bezier.P2 - bezier.C2), G);
+                BiArc biarc = new BiArc(bezier.P1, (bezier.P1 - C1), bezier.P2, (bezier.P2 - C2), G);
 
                 // ---------------------------------------------------------------------------
                 // Calculate the maximum error
