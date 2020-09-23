@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Numerics;
 using System.Windows.Forms;
 
@@ -87,45 +88,81 @@ namespace BiArcTutorial
             bt5a, bt5b, bt5c, bt6, bt7
         };
 
-        private int Index { get; set; } = 0;
-        public CubicBezier Current => curveList[Index % curveList.Length];
+        private int ArcIndex { get; set; } = 0;
+        private int ShapeIndex { get; set; } = 0;
+
+        public CubicBezier Current => curveList[ShapeIndex % curveList.Length];
 
         protected override void OnPaint(PaintEventArgs e)
         {
             var bezier = Current;
             var biarcs = Algorithm.ApproxCubicBezier(bezier, 5, 1);
 
+            ArcIndex = ArcIndex % (2*biarcs.Count);
+
             Graphics g = e.Graphics;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
 
             // The full approximation circles for better understanding
+            int arcIdx = 0;
             foreach (var biarc in biarcs)
-             {
-                 g.DrawEllipse(new Pen(Color.Green, 1),
-                     biarc.A1.C.X - biarc.A1.r, biarc.A1.C.Y - biarc.A1.r, 2 * biarc.A1.r, 2 * biarc.A1.r);
-                 g.DrawEllipse(new Pen(Color.Green, 1),
-                     biarc.A2.C.X - biarc.A2.r, biarc.A2.C.Y - biarc.A2.r, 2 * biarc.A2.r, 2 * biarc.A2.r);
-             }
+            {
+                g.DrawEllipse(GetEllipsePen(arcIdx),
+                    biarc.A1.C.X - biarc.A1.r, biarc.A1.C.Y - biarc.A1.r, 2 * biarc.A1.r, 2 * biarc.A1.r);
+                arcIdx++;
+                g.DrawEllipse(GetEllipsePen(arcIdx),
+                    biarc.A2.C.X - biarc.A2.r, biarc.A2.C.Y - biarc.A2.r, 2 * biarc.A2.r, 2 * biarc.A2.r);
+                arcIdx++;
+            }
+
 
             // Draw the original bezier
-            g.DrawBezier(new Pen(Color.Black, 2),
+            g.DrawBezier(new Pen(Color.Black, 3),
                 AsPointF(bezier.P1), AsPointF(bezier.C1), AsPointF(bezier.C2), AsPointF(bezier.P2));
 
             // The approximation biarcs
+            arcIdx = 0;
             foreach (var biarc in biarcs)
-            { 
-                g.DrawArc(new Pen(Color.Red, 1),
-                    biarc.A1.C.X - biarc.A1.r, biarc.A1.C.Y - biarc.A1.r, 2 * biarc.A1.r, 2 * biarc.A1.r, 
+            {
+                g.DrawArc(GetArcPen(arcIdx),
+                    biarc.A1.C.X - biarc.A1.r, biarc.A1.C.Y - biarc.A1.r, 2 * biarc.A1.r, 2 * biarc.A1.r,
                     biarc.A1.startAngle * 180.0f / (float)Math.PI, biarc.A1.sweepAngle * 180.0f / (float)Math.PI);
-                g.DrawArc(new Pen(Color.Red, 1),
-                    biarc.A2.C.X - biarc.A2.r, biarc.A2.C.Y - biarc.A2.r, 2 * biarc.A2.r, 2 * biarc.A2.r, 
+                arcIdx++;
+                g.DrawArc(GetArcPen(arcIdx),
+                    biarc.A2.C.X - biarc.A2.r, biarc.A2.C.Y - biarc.A2.r, 2 * biarc.A2.r, 2 * biarc.A2.r,
                     biarc.A2.startAngle * 180.0f / (float)Math.PI, biarc.A2.sweepAngle * 180.0f / (float)Math.PI);
-            }    
+                arcIdx++;
+            }
 
+            CurveCount.Text = $"{2 * biarcs.Count} Arcs";
         }
 
-        private void NextButton_Click(object sender, EventArgs e)
+        private Pen GetEllipsePen(int arcIdx)
         {
-            Index++;
+            if(arcIdx == ArcIndex)
+                return new Pen(Color.LightGreen, 2);
+            else
+                return new Pen(Color.Green, 1);
+        }
+
+        private Pen GetArcPen(int arcIdx)
+        {
+            if (arcIdx == ArcIndex)
+                return new Pen(Color.Red, 2);
+            else
+                return new Pen(Color.Black, 1);
+        }
+
+        private void NextShapeButton_Click(object sender, EventArgs e)
+        {
+            ArcIndex = 0;
+            ShapeIndex++;
+            Refresh();
+        }
+
+        private void NextArcButton_Click(object sender, EventArgs e)
+        {
+            ArcIndex++;
             Refresh();
         }
     }
