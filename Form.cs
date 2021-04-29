@@ -96,7 +96,7 @@ namespace BiArcTutorial
         protected override void OnPaint(PaintEventArgs e)
         {
             var bezier = Current;
-            var biarcs = Algorithm.ApproxCubicBezier(bezier, 5, 1);
+            var biarcs = Algorithm.ApproxCubicBezier(bezier, 5, (float)ErrorLevel.Value);
 
             ArcIndex = ArcIndex % (2*biarcs.Count);
 
@@ -107,11 +107,9 @@ namespace BiArcTutorial
             int arcIdx = 0;
             foreach (var biarc in biarcs)
             {
-                g.DrawEllipse(GetEllipsePen(arcIdx),
-                    biarc.A1.C.X - biarc.A1.r, biarc.A1.C.Y - biarc.A1.r, 2 * biarc.A1.r, 2 * biarc.A1.r);
+                DrawFullCircle(g, arcIdx, biarc.A1);
                 arcIdx++;
-                g.DrawEllipse(GetEllipsePen(arcIdx),
-                    biarc.A2.C.X - biarc.A2.r, biarc.A2.C.Y - biarc.A2.r, 2 * biarc.A2.r, 2 * biarc.A2.r);
+                DrawFullCircle(g, arcIdx, biarc.A2);
                 arcIdx++;
             }
 
@@ -124,17 +122,31 @@ namespace BiArcTutorial
             arcIdx = 0;
             foreach (var biarc in biarcs)
             {
-                g.DrawArc(GetArcPen(arcIdx),
-                    biarc.A1.C.X - biarc.A1.r, biarc.A1.C.Y - biarc.A1.r, 2 * biarc.A1.r, 2 * biarc.A1.r,
-                    biarc.A1.startAngle * 180.0f / (float)Math.PI, biarc.A1.sweepAngle * 180.0f / (float)Math.PI);
+                DrawArc(g, arcIdx, biarc.A1);
                 arcIdx++;
-                g.DrawArc(GetArcPen(arcIdx),
-                    biarc.A2.C.X - biarc.A2.r, biarc.A2.C.Y - biarc.A2.r, 2 * biarc.A2.r, 2 * biarc.A2.r,
-                    biarc.A2.startAngle * 180.0f / (float)Math.PI, biarc.A2.sweepAngle * 180.0f / (float)Math.PI);
+                DrawArc(g, arcIdx, biarc.A2);
                 arcIdx++;
             }
 
             CurveCount.Text = $"{2 * biarcs.Count} Arcs";
+        }
+
+        private void DrawFullCircle(Graphics g, int arcIdx, Arc arc)
+        {
+            if (arc.r != 0.0)
+            {
+                g.DrawEllipse(GetEllipsePen(arcIdx), arc.C.X - arc.r, arc.C.Y - arc.r, 2 * arc.r, 2 * arc.r);
+            }
+        }
+
+        private void DrawArc(Graphics g, int arcIdx, Arc arc)
+        {
+            if (arc.r != 0.0)
+            {
+                g.DrawArc(GetArcPen(arcIdx),
+                    arc.C.X - arc.r, arc.C.Y - arc.r, 2 * arc.r, 2 * arc.r,
+                    arc.startAngle * 180.0f / (float)Math.PI, arc.sweepAngle * 180.0f / (float)Math.PI);
+            }
         }
 
         private Pen GetEllipsePen(int arcIdx)
@@ -163,6 +175,11 @@ namespace BiArcTutorial
         private void NextArcButton_Click(object sender, EventArgs e)
         {
             ArcIndex++;
+            Refresh();
+        }
+
+        private void ErrorLevel_ValueChanged(object sender, EventArgs e)
+        {
             Refresh();
         }
     }

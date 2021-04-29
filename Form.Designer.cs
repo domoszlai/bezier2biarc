@@ -31,6 +31,8 @@
             this.NextShapeButton = new System.Windows.Forms.Button();
             this.CurveCount = new System.Windows.Forms.Label();
             this.NextArcButton = new System.Windows.Forms.Button();
+            this.ErrorLevel = new System.Windows.Forms.NumericUpDown();
+            ((System.ComponentModel.ISupportInitialize)(this.ErrorLevel)).BeginInit();
             this.SuspendLayout();
             // 
             // NextShapeButton
@@ -62,16 +64,43 @@
             this.NextArcButton.UseVisualStyleBackColor = true;
             this.NextArcButton.Click += new System.EventHandler(this.NextArcButton_Click);
             // 
+            // ErrorLevel
+            // 
+            this.ErrorLevel.DecimalPlaces = 1;
+            this.ErrorLevel.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            65536});
+            this.ErrorLevel.Location = new System.Drawing.Point(13, 73);
+            this.ErrorLevel.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            65536});
+            this.ErrorLevel.Name = "ErrorLevel";
+            this.ErrorLevel.Size = new System.Drawing.Size(75, 20);
+            this.ErrorLevel.TabIndex = 3;
+            this.ErrorLevel.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.ErrorLevel.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.ErrorLevel.ValueChanged += new System.EventHandler(this.ErrorLevel_ValueChanged);
+            // 
             // Form
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1065, 730);
+            this.Controls.Add(this.ErrorLevel);
             this.Controls.Add(this.NextArcButton);
             this.Controls.Add(this.CurveCount);
             this.Controls.Add(this.NextShapeButton);
             this.Name = "Form";
             this.Text = "Form1";
+            ((System.ComponentModel.ISupportInitialize)(this.ErrorLevel)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -82,6 +111,7 @@
         private System.Windows.Forms.Button NextShapeButton;
         private System.Windows.Forms.Label CurveCount;
         private System.Windows.Forms.Button NextArcButton;
+        private System.Windows.Forms.NumericUpDown ErrorLevel;
     }
 }
 
