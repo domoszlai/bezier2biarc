@@ -81,11 +81,16 @@ namespace BiArcTutorial
                 new Vector2(600, 400), new Vector2(500, 400),
                 new Vector2(500, 476), new Vector2(600, 476));
 
+        // NaN inflexion point
+        static CubicBezier bt8 = new CubicBezier(
+                new Vector2(460, 365), new Vector2(440, 365),
+                new Vector2(400, 466), new Vector2(400, 365));
+
         static CubicBezier[] curveList = new CubicBezier[]
         {
             b1, b2, b3, b4,
             bt1, bt2, bt3, bt4a, bt4b,
-            bt5a, bt5b, bt5c, bt6, bt7
+            bt5a, bt5b, bt5c, bt6, bt7, bt8
         };
 
         private int ArcIndex { get; set; } = 0;

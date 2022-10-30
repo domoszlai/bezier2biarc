@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 
 namespace BiArcTutorial
@@ -78,16 +79,24 @@ namespace BiArcTutorial
             }
         }
 
+        private static bool IsRealInflexionPoint(Complex t)
+        {
+            return t.Imaginary == 0 && t.Real > 0 && t.Real < 1;
+        }
+
         /// <summary>
         /// Inflexion points of the Bezier curve. They only valid if they are real and in the range of [0,1]
         /// </summary>
         /// <param name="bezier"></param>
         /// <returns></returns>
-        public Tuple<Complex, Complex> InflexionPoints
+        public List<Complex> InflexionPoints
         {
             get
             {
+                var solutions = new List<Complex>();
+
                 // http://www.caffeineowl.com/graphics/2d/vectorial/cubic-inflexion.html
+                // solve X' * Y'' - X'' * Y' = 0
 
                 var A = C1 - P1;
                 var B = C2 - C1 - A;
@@ -97,10 +106,22 @@ namespace BiArcTutorial
                 var b = new Complex(A.X * C.Y - A.Y * C.X, 0);
                 var c = new Complex(A.X * B.Y - A.Y * B.X, 0);
 
-                var t1 = (-b + Complex.Sqrt(b * b - 4 * a * c)) / (2 * a);
-                var t2 = (-b - Complex.Sqrt(b * b - 4 * a * c)) / (2 * a);
+                if (a != 0)
+                {
+                    // quadratic equation: a*t^2 + b*t + c = 0 
+                    var t1 = (-b + Complex.Sqrt(b * b - 4 * a * c)) / (2 * a);
+                    var t2 = (-b - Complex.Sqrt(b * b - 4 * a * c)) / (2 * a);
 
-                return Tuple.Create(t1, t2);
+                    if (IsRealInflexionPoint(t1)) solutions.Add(t1);
+                    if (IsRealInflexionPoint(t2)) solutions.Add(t2);
+                } 
+                else // b != 0, linear equation: b*t + c = 0
+                {
+                    var t = -c / b;
+                    if (IsRealInflexionPoint(t)) solutions.Add(t);
+                }
+
+                return solutions;
             }
         }
     }

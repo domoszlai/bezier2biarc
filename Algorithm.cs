@@ -1,16 +1,12 @@
 ﻿using System;
 using System.Numerics;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace BiArcTutorial
 {
     public class Algorithm
     {
-
-        private static bool IsRealInflexionPoint(Complex t)
-        {
-            return t.Imaginary == 0 && t.Real > 0 && t.Real < 1;
-        }
 
         /// <summary>
         /// Algorithm to approximate a bezier curve with biarcs
@@ -49,25 +45,25 @@ namespace BiArcTutorial
             {
                 var inflex = toSplit.InflexionPoints;
 
-                var i1 = IsRealInflexionPoint(inflex.Item1);
-                var i2 = IsRealInflexionPoint(inflex.Item2);
+                var i1 = inflex.Count > 0;
+                var i2 = inflex.Count > 1;
 
                 if (i1 && !i2)
                 {
-                    var splited = toSplit.Split((float)inflex.Item1.Real);
+                    var splited = toSplit.Split((float)inflex[0].Real);
                     curves.Push(splited.Item2);
                     curves.Push(splited.Item1);
                 }
                 else if (!i1 && i2)
                 {
-                    var splited = toSplit.Split((float)inflex.Item2.Real);
+                    var splited = toSplit.Split((float)inflex[1].Real);
                     curves.Push(splited.Item2);
                     curves.Push(splited.Item1);
                 }
                 else if (i1 && i2)
                 {
-                    var t1 = (float)inflex.Item1.Real;
-                    var t2 = (float)inflex.Item2.Real;
+                    var t1 = (float)inflex[0].Real;
+                    var t2 = (float)inflex[1].Real;
 
                     // I'm not sure if I need, but it does not hurt to order them
                     if (t1 > t2)
