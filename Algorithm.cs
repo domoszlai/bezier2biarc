@@ -10,6 +10,7 @@ namespace BiArcTutorial
 
         /// <summary>
         /// Algorithm to approximate a bezier curve with biarcs
+        /// Based on: M.A. Sabin, The use of piecewise forms for the numerical representation of shape (1977)
         /// </summary>
         /// <param name="bezier">The bezier curve to be approximated.</param>
         /// <param name="nrPointsToCheck">The number of points used for calculating the approximation error.</param>
@@ -135,6 +136,7 @@ namespace BiArcTutorial
 
                 // ---------------------------------------------------------------------------
                 // Calculate the maximum error
+                // TODO: D.J. Walton*, D.S. Meek, Approximation of a planar cubic B6zier spiral by circular arcs (1996)
 
                 var maxDistance = 0f;
                 var maxDistanceAt = 0f;
