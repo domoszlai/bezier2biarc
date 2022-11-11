@@ -9,7 +9,7 @@ The algorithm is explained in the blog post at http://dlacko.org/blog/2016/10/19
 ## Implementation
 
 This is a new implementation based on dotnet [MAUI](https://learn.microsoft.com/en-us/dotnet/maui/what-is-maui?view=net-maui-7.0)
-as the original Windows.Form implementation put a hard requirement on Windows. You can still find theoriginal one on the `winforms` branch.
+as the original Windows.Form implementation put a hard requirement on Windows. You can still find the original one on the `winforms` branch.
 
 The algorithm is also be available in Haskell, incorporated into my [JuicyGcode](https://github.com/domoszlai/svg2gcode) project.
 
