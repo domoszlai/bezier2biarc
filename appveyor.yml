@@ -1,0 +1,24 @@
+version: '{build}'
+
+image: Visual Studio 2022
+assembly_info:
+  patch: true
+  file: '**\AssemblyInfo.*'
+  assembly_version: '{version}'
+  assembly_file_version: '{version}'
+  assembly_informational_version: '{version}'
+environment:
+  version-short: 4.0.0  
+nuget:
+  disable_publish_on_pr: true
+install:
+- ps: Invoke-WebRequest 'https://dot.net/v1/dotnet-install.ps1' -OutFile 'dotnet-install.ps1';
+- ps: ./dotnet-install.ps1 -Version 7.0.100 -InstallDir "dotnetcli"
+- cmd: '"C:/Program Files (x86)/Android/android-sdk/tools/bin/sdkmanager.bat" "platforms;android-33"'
+before_build:
+- cmd: dotnet new sln --name BiArcTutorial
+- cmd: dotnet sln add .
+- cmd: dotnet workload restore
+- cmd: nuget restore BiArcTutorial.sln
+build_script:
+  cmd: dotnet build

@@ -1,6 +1,8 @@
 Bezier curve approximation algorithm with biarcs
 ==================================
 
+[![Appveyor](https://ci.appveyor.com/api/projects/status/github/domoszlai/juicy-gcode?branch=master&svg=true)](https://ci.appveyor.com/project/domoszlai/bezier2biarc)
+
 ## Synopsis
 
 Simple C# application to illustrate the algorithm of approximating a cubic bezier curve with biarcs.
@@ -18,4 +20,4 @@ The algorithm is also be available in Haskell, incorporated into my [JuicyGcode]
 - Install community edition of Visual Studio 2022 (at least 17.4) or the latest Visual Studio for Mac
 - Install .NET 7.0 SDK
 - Check out the repository and run `dotnet workload restore`
-- Open BiArcTutorial.csproj and pray (I did not manage to run the project on Windows only on Mac)
+- Open BiArcTutorial.csproj and pray
