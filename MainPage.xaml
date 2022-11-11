@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:BiArcTutorial"
+             x:Class="BiArcTutorial.MainPage">
+
+    <ContentPage.BindingContext>
+        <local:ViewModel x:Name="pageContext"/>
+    </ContentPage.BindingContext>
+
+    <ContentPage.Resources>
+        <local:Visualizer x:Key="drawable"
+                          Bezier="{Binding SelectedCurve}"
+                          BiArcs="{Binding BiArcs}"
+                          SelectedArcIndex="{Binding SelectedArcIndex}"
+                          BindingContext="{Reference pageContext}"/>
+    </ContentPage.Resources>
+
+    <HorizontalStackLayout>
+        <VerticalStackLayout Margin="10,50,100,0">
+            <Label Text="Bezier" />
+
+            <Picker x:Name="picker"
+                    Title="Select a bezier"
+                    ItemsSource="{Binding LabeledCurves}"
+                    SelectedIndex="{Binding SelectedCurveIndex}"/>
+
+            <Label Text="Highlighted arc" />
+            <Slider Value="{Binding SelectedArcIndex}"
+                    Minimum="1"
+                    Maximum="{Binding NumberOfArcs}"/>
+
+            <Label Text="Maximum error" />
+            <Slider Value="{Binding MaxError}"
+                    Minimum="1"
+                    Maximum="100"/>
+        </VerticalStackLayout>
+
+        <Border>
+            <GraphicsView x:Name= "graphicsView"
+                          Drawable="{x:StaticResource drawable}"
+                          HeightRequest="800"
+                          WidthRequest="800"/>
+        </Border>
+    </HorizontalStackLayout>
+
+</ContentPage>
+
