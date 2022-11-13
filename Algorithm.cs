@@ -195,7 +195,7 @@ namespace BiArcTutorial
 
             var P = biarc.PointAt(t);
             var C = t <= biarc.JointAt ? biarc.A1.C : biarc.A2.C;
-            var M = P - biarc.A1.C;
+            var M = P - C;
             var H = Vector2.Normalize(new Vector2(-M.Y, M.X));
 
             var f = new Func<float, float>(u =>
