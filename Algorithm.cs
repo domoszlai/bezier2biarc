@@ -165,8 +165,7 @@ namespace BiArcTutorial
                         }
                     }
                 }
-
-                /*
+                
                 // Calculate parameter value on the bezier that corresponds to the biarc joint point
                 var tj = RadialDirectionIntersection(bezier, biarc, biarc.JointAt);
                 var dj = tj != -1 ? (bezier.PointAt(tj) - biarc.PointAt(biarc.JointAt)).Length() : 0;
@@ -174,40 +173,6 @@ namespace BiArcTutorial
                 {
                     var jt2 = RadialDirectionIntersection(bezier, biarc, biarc.JointAt);
                 }
-
-                // Valid in [0,tj]
-                var g0 = new Func<float, float>(u =>
-                {
-                    return Vector2.Dot((bezier.PointAt(u) - biarc.A1.C) / 3, bezier.FirstDerivativePointAt(u));
-                });
-
-                // Valid in [tj,1]
-                var g1 = new Func<float, float>(u =>
-                {
-                    return Vector2.Dot((bezier.PointAt(u) - biarc.A2.C) / 3, bezier.FirstDerivativePointAt(u));
-                });
-
-                var tb0 = FindRoot(g0, 0, tj);
-                var d0 = 0f;
-                if(tb0 != -1)
-                {
-                    var vb0 = bezier.PointAt(tb0);
-                    var H = Vector2.Normalize(vb0 - biarc.A1.C);
-                    var v0 = biarc.A1.C  + H * biarc.A1.r;
-                    d0 = (vb0 - v0).Length();
-                }
-
-                var tb1 = FindRoot(g1, tj, 1);
-                var d1 = 0f;
-                if (tb1 != -1)
-                {
-                    var vb1 = bezier.PointAt(tb1);
-                    var H = Vector2.Normalize(vb1 - biarc.A2.C);
-                    var v1 = biarc.A2.C + H * biarc.A2.r;
-                    d1 = (vb1 - v1).Length();
-                }
-
-                var maxDistance2 = Math.Max(dj, Math.Max(d0, d1));*/
 
                 // Check if the two curves are close enough
                 if (maxDistance > tolerance)
@@ -221,7 +186,7 @@ namespace BiArcTutorial
                 else
                 {
                     // Otherwise we are done with the current bezier
-                    biarcs.Add(new Approx(bezier, biarc));
+                    biarcs.Add(new Approx(bezier, biarc, null));
                 }
             }
 
@@ -249,7 +214,13 @@ namespace BiArcTutorial
                 return Vector2.Dot(bezier.PointAt(u) - P, H);
             });
 
-            return FindRoot(f, 0, 1);
+            // https://proofwiki.org/wiki/Derivative_of_Dot_Product_of_Vector-Valued_Functions
+            var df = new Func<float, float>(u =>
+            {
+                return Vector2.Dot(bezier.FirstDerivativePointAt(u), H);
+            });
+
+            return FindRoot(f, df, 0, 1);
         }
 
         /// <summary>
@@ -260,26 +231,29 @@ namespace BiArcTutorial
         {
             if (f(a) * f(b) >= 0) return -1;
 
-            var maxiter = 1000;
+            var maxiter = 100;
             var eps = 0.001;
 
-            float x0 = default(float);
-            float v0 = default(float);
+            float x = default(float);
+            float v = default(float);
 
             while (maxiter > 0)
             {
-                x0 = (a + b) / 2;
-                v0 = f(x0);
+                x = (a + b) / 2;
+                v = f(x);
 
-                if (Math.Abs(v0) < eps) return x0;
-
-                if(f(a) * v0 < 0)
+                if (Math.Abs(v) < eps)
                 {
-                    b = x0;
+                    return x;
                 }
-                else if(f(b) * v0 < 0)
+
+                if(f(a) * v < 0)
                 {
-                    a = x0;
+                    b = x;
+                }
+                else if(f(b) * v < 0)
+                {
+                    a = x;
                 }
                 else
                 {
@@ -290,8 +264,32 @@ namespace BiArcTutorial
             }
 
             // We must be close enough now
-            return x0;
+            return x;
         }
 
+
+        /// <summary>
+        /// Tries to find the root of f in interval [a,b] using the Newton method.
+        /// It is supposed to have at most one solution. If no solution is found, returns -1
+        /// </summary>
+        public static float FindRoot(Func<float, float> f, Func<float, float> d, float a, float b)
+        {
+            if (f(a) * f(b) >= 0) return -1;
+
+            var maxiter = 100;
+            var eps = 0.001;
+
+            var x = (a + b) / 2;
+            var h = f(a) / d(a);
+
+            while (maxiter > 0 && Math.Abs(h) >= eps)
+            {
+                h = f(x) / d(x);
+                x = x - h;
+                maxiter -= 1;
+            }
+
+            return x;
+        }
     }
 }

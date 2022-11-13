@@ -54,6 +54,21 @@ namespace BiArcTutorial
                 DrawApproxArc(canvas, currArcIdx++, approx.BiArc.A1);
                 DrawApproxArc(canvas, currArcIdx++, approx.BiArc.A2);
             }
+
+            canvas.StrokeSize = 1;
+
+            foreach (var approx in Approx)
+            {
+                if (approx.DebugLines == null)
+                    continue;
+
+                foreach (var (p1,p2,color) in approx.DebugLines)
+                {
+                    canvas.StrokeColor = color;
+                    canvas.DrawLine(p1, p2); 
+                }
+            }
+
         }
 
         private void DrawApproxCircle(ICanvas canvas, int currArcIdx, Arc arc)
