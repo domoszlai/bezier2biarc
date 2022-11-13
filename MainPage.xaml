@@ -19,11 +19,13 @@
     <HorizontalStackLayout>
         <VerticalStackLayout Margin="10,50,100,0">
             <Label Text="Bezier" />
-
             <Picker x:Name="picker"
                     Title="Select a bezier"
                     ItemsSource="{Binding LabeledCurves}"
                     SelectedIndex="{Binding SelectedCurveIndex}"/>
+
+            <Label Text="Nr. arcs:" />
+            <Label Text="{Binding NrArcs}" />
 
             <Label Text="Highlighted arc" />
             <Slider Value="{Binding SelectedArcIndex}"

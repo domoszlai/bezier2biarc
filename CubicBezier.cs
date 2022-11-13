@@ -63,22 +63,6 @@ namespace BiArcTutorial
             return Tuple.Create(new CubicBezier(P1, p0, p01, dp), new CubicBezier(dp, p12, p2, P2));
         }
 
-        /// <summary>
-        /// The orientation of the Bezier curve
-        /// </summary>
-        public bool IsClockwise
-        {
-            get
-            {
-                var sum = 0d;
-                sum += (C1.X - P1.X) * (C1.Y + P1.Y);
-                sum += (C2.X - C1.X) * (C2.Y + C1.Y);
-                sum += (P2.X - C2.X) * (P2.Y + C2.Y);
-                sum += (P1.X - P2.X) * (P1.Y + P2.Y);
-                return sum < 0;
-            }
-        }
-
         private static bool IsRealInflexionPoint(Complex t)
         {
             return t.Imaginary == 0 && t.Real > 0 && t.Real < 1;
@@ -125,9 +109,9 @@ namespace BiArcTutorial
             }
         }
 
-        public override String ToString()
-        {
-            return $"[P1={P1}, C1={C1}, C2={C2}, P2={P2}]";
-        }
+        /// <summary>
+        /// The orientation of the Bezier curve
+        /// </summary>
+        public bool IsClockWise => Curve.IsClockWise(P1, C1, C2, P2);
     }
 }

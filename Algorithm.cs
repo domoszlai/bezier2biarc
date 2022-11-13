@@ -30,14 +30,14 @@ namespace BiArcTutorial
 
             var toSplit = curves.Pop();
 
-            // Edge case: P1 == P2 -> Split bezier
+            // Degenerate curve: P1 == P2 -> Split bezier
             if (bezier.P1 == bezier.P2)
             {
                 var bs = bezier.Split(0.5f);
                 curves.Push(bs.Item2);
                 curves.Push(bs.Item1);
             }
-            // Edge case -> no inflexion points
+            // Degenerate curve: P1 == C1 || P2 == C2 -> no inflexion points
             else if (toSplit.P1 == toSplit.C1 || toSplit.P2 == toSplit.C2)
             {
                 curves.Push(toSplit);
@@ -102,7 +102,7 @@ namespace BiArcTutorial
                 bezier = curves.Pop();
 
                 // ---------------------------------------------------------------------------
-                // Calculate the transition point for the BiArc 
+                // Calculate the BiARC 
 
                 // V: Intersection point of tangent lines
                 var C1 = bezier.P1 == bezier.C1 ? bezier.C2 : bezier.C1;
@@ -111,7 +111,7 @@ namespace BiArcTutorial
                 var T1 = new Line(bezier.P1, C1);
                 var T2 = new Line(bezier.P2, C2);
 
-                // Edge case: control lines are parallel
+                // Control lines are parallel -> can't calculate triangle for biarc
                 if(T1.m == T2.m)
                 {
                     var bs = bezier.Split(0.5f);
@@ -122,6 +122,16 @@ namespace BiArcTutorial
 
                 var V = T1.Intersection(T2);
 
+                // Biarc triangle has the wrong orientation
+                // Curve looks like this: https://pomax.github.io/bezierinfo/images/chapters/decasteljau/df92f529841f39decf9ad62b0967855a.png
+                if (bezier.IsClockWise != Curve.IsClockWise(bezier.P1, bezier.P2, V))
+                {
+                    var bs = bezier.Split(0.5f);
+                    curves.Push(bs.Item2);
+                    curves.Push(bs.Item1);
+                    continue;
+                }
+
                 // G: incenter point of the triangle (P1, V, P2)
                 // http://www.mathopenref.com/coordincenter.html
                 var dP2V = Vector2.Distance(bezier.P2, V);
@@ -129,31 +139,27 @@ namespace BiArcTutorial
                 var dP1P2 = Vector2.Distance(bezier.P1, bezier.P2);
                 var G = (dP2V * bezier.P1 + dP1V * bezier.P2 + dP1P2 * V) / (dP2V + dP1V + dP1P2);
 
-                // ---------------------------------------------------------------------------
-                // Calculate the BiArc
-
                 BiArc biarc = new BiArc(bezier.P1, (bezier.P1 - C1), bezier.P2, (bezier.P2 - C2), G);
 
                 // ---------------------------------------------------------------------------
-                // Calculate the maximum error
+                // Calculate the maximum error along the radial direction
                 // TODO: D.J. Walton*, D.S. Meek, Approximation of a planar cubic B6zier spiral by circular arcs (1996)
 
                 var maxDistance = 0f;
                 var maxDistanceAt = 0f;
 
-                var parameterStep = 1f / nrPointsToCheck;
+                var parameterStep = 1f / (nrPointsToCheck + 1);
 
-                for (int i = 0; i <= nrPointsToCheck; i++)
+                for (int i = 1; i <= nrPointsToCheck; i++)
                 {
                     var t = parameterStep * i;
-                    var u1 = biarc.PointAt(t);
-                    var u2 = bezier.PointAt(t);
-                    var distance = (u1 - u2).Length();
+                    var bt = RadialDirectionIntersection(bezier, biarc, t);                    
+                    var distance = bt != -1 ? (bezier.PointAt(bt) - biarc.PointAt(t)).Length() : 0;
 
                     if (distance > maxDistance)
                     {
                         maxDistance = distance;
-                        maxDistanceAt = t;
+                        maxDistanceAt = bt;
                     }
                 }
 
@@ -174,6 +180,60 @@ namespace BiArcTutorial
             }
 
             return biarcs;
+        }
+
+        /// <summary>
+        /// Takes a paramater `t` fore the `biarc` and calculates the the related parameter for
+        /// the `bezier` (which is the intersection point in the radial direction)
+        /// </summary>
+        public static float RadialDirectionIntersection(CubicBezier bezier, BiArc biarc, float t)
+        {
+            if(t == 0 || t == 1)
+            {
+                return t;
+            }
+
+            var P = biarc.PointAt(t);
+            var C = t <= biarc.JointAt ? biarc.A1.C : biarc.A2.C;
+            var M = P - biarc.A1.C;
+            var H = Vector2.Normalize(new Vector2(-M.Y, M.X));
+
+            var f = new Func<float, float>(u =>
+            {
+                return Vector2.Dot(bezier.PointAt(u) - P, H);
+            });
+
+            return FindRoot(f, 0, 1);
+        }
+
+        /// <summary>
+        /// Tries to find the root of f in interval [a,b] using the bisection method.
+        /// It is supposed to have at most one solution. If no solution is found, returns -1
+        /// </summary>
+        public static float FindRoot(Func<float, float> f, float a, float b)
+        {
+            if (f(a) * f(b) >= 0) return -1;
+
+            while (true)
+            {
+                var x0 = (a + b) / 2;
+                var v0 = f(x0);
+
+                if (Math.Abs(v0) < 0.001) return x0;
+
+                if(f(a) * v0 < 0)
+                {
+                    b = x0;
+                }
+                else if(f(b) * v0 < 0)
+                {
+                    a = x0;
+                }
+                else
+                {
+                    return -1;
+                }
+            }
         }
 
     }

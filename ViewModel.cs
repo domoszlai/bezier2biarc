@@ -147,6 +147,8 @@ namespace BiArcTutorial
             }
         }
 
+        public int NrArcs { get; private set; }
+
         public CubicBezier SelectedCurve => LabeledCurves[SelectedCurveIndex].Item;
         public List<BiArc> BiArcs { get; private set; }
 
@@ -180,6 +182,8 @@ namespace BiArcTutorial
         {
             BiArcs = Algorithm.ApproxCubicBezier(SelectedCurve, 5, MaxError);
             SelectedArcIndex = 1;
+            NrArcs = BiArcs.Count * 2;
+            OnPropertyChanged(nameof(NrArcs));
             OnPropertyChanged(nameof(BiArcs));
             OnPropertyChanged(nameof(NumberOfArcs));
         }
