@@ -16,10 +16,10 @@ namespace BiArcTutorial
         /// <param name="nrPointsToCheck">The number of points used for calculating the approximation error.</param>
         /// <param name="tolerance">The approximation is accepted if the maximum devation at the sampling points is smaller than this number.</param>
         /// <returns></returns>
-        public static List<BiArc> ApproxCubicBezier(CubicBezier bezier, int nrPointsToCheck, float tolerance)
+        public static List<Approx> ApproxCubicBezier(CubicBezier bezier, int nrPointsToCheck, float tolerance)
         {
             // The result will be put here
-            List<BiArc> biarcs = new List<BiArc>();
+            List<Approx> biarcs = new List<Approx>();
 
             // The bezier curves to approximate
             var curves = new Stack<CubicBezier>();
@@ -154,14 +154,60 @@ namespace BiArcTutorial
                 {
                     var t = parameterStep * i;
                     var bt = RadialDirectionIntersection(bezier, biarc, t);                    
-                    var distance = bt != -1 ? (bezier.PointAt(bt) - biarc.PointAt(t)).Length() : 0;
-
-                    if (distance > maxDistance)
+                    if(bt != -1)
                     {
-                        maxDistance = distance;
-                        maxDistanceAt = bt;
+                        var distance = (bezier.PointAt(bt) - biarc.PointAt(t)).Length();
+
+                        if (distance > maxDistance)
+                        {
+                            maxDistance = distance;
+                            maxDistanceAt = bt;
+                        }
                     }
                 }
+
+                /*
+                // Calculate parameter value on the bezier that corresponds to the biarc joint point
+                var tj = RadialDirectionIntersection(bezier, biarc, biarc.JointAt);
+                var dj = tj != -1 ? (bezier.PointAt(tj) - biarc.PointAt(biarc.JointAt)).Length() : 0;
+                if (tj == -1)
+                {
+                    var jt2 = RadialDirectionIntersection(bezier, biarc, biarc.JointAt);
+                }
+
+                // Valid in [0,tj]
+                var g0 = new Func<float, float>(u =>
+                {
+                    return Vector2.Dot((bezier.PointAt(u) - biarc.A1.C) / 3, bezier.FirstDerivativePointAt(u));
+                });
+
+                // Valid in [tj,1]
+                var g1 = new Func<float, float>(u =>
+                {
+                    return Vector2.Dot((bezier.PointAt(u) - biarc.A2.C) / 3, bezier.FirstDerivativePointAt(u));
+                });
+
+                var tb0 = FindRoot(g0, 0, tj);
+                var d0 = 0f;
+                if(tb0 != -1)
+                {
+                    var vb0 = bezier.PointAt(tb0);
+                    var H = Vector2.Normalize(vb0 - biarc.A1.C);
+                    var v0 = biarc.A1.C  + H * biarc.A1.r;
+                    d0 = (vb0 - v0).Length();
+                }
+
+                var tb1 = FindRoot(g1, tj, 1);
+                var d1 = 0f;
+                if (tb1 != -1)
+                {
+                    var vb1 = bezier.PointAt(tb1);
+                    var H = Vector2.Normalize(vb1 - biarc.A2.C);
+                    var v1 = biarc.A2.C + H * biarc.A2.r;
+                    d1 = (vb1 - v1).Length();
+                }
+
+                var maxDistance2 = Math.Max(dj, Math.Max(d0, d1));*/
 
                 // Check if the two curves are close enough
                 if (maxDistance > tolerance)
@@ -175,7 +221,7 @@ namespace BiArcTutorial
                 else
                 {
                     // Otherwise we are done with the current bezier
-                    biarcs.Add(biarc);
+                    biarcs.Add(new Approx(bezier, biarc));
                 }
             }
 
@@ -214,12 +260,18 @@ namespace BiArcTutorial
         {
             if (f(a) * f(b) >= 0) return -1;
 
-            while (true)
-            {
-                var x0 = (a + b) / 2;
-                var v0 = f(x0);
+            var maxiter = 1000;
+            var eps = 0.001;
 
-                if (Math.Abs(v0) < 0.001) return x0;
+            float x0 = default(float);
+            float v0 = default(float);
+
+            while (maxiter > 0)
+            {
+                x0 = (a + b) / 2;
+                v0 = f(x0);
+
+                if (Math.Abs(v0) < eps) return x0;
 
                 if(f(a) * v0 < 0)
                 {
@@ -233,7 +285,12 @@ namespace BiArcTutorial
                 {
                     return -1;
                 }
+
+                maxiter -= 1;
             }
+
+            // We must be close enough now
+            return x0;
         }
 
     }

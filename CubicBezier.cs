@@ -45,6 +45,18 @@ namespace BiArcTutorial
         }
 
         /// <summary>
+        /// Parametric equation of the first derivative of the bezier curve.
+        /// </summary>
+        /// <param name="t">Parameter of the curve. Must be in [0,1]</param>
+        /// <returns></returns>
+        public Vector2 FirstDerivativePointAt(float t)
+        {
+            return (float)(3 * Math.Pow(1 - t, 2)) * (C1 - P1) +
+                       (float)(6 * (1 - t) * t) * (C2 - C1) +
+                       (float)(3 * Math.Pow(t, 2)) * (P2 - C2);
+        }
+
+        /// <summary>
         /// Split a bezier curve at a given parameter value. It returns both of the new ones
         /// </summary>
         /// <param name="t">Parameter of the curve. Must be in [0,1]</param>

@@ -112,7 +112,7 @@ namespace BiArcTutorial
             }
         }
 
-        public int NumberOfArcs => BiArcs == null ? 0 : BiArcs.Count * 2;
+        public int NumberOfArcs => Approx == null ? 0 : Approx.Count * 2;
 
         private int _selectedCurveIndex = 0;
         public int SelectedCurveIndex {
@@ -150,7 +150,7 @@ namespace BiArcTutorial
         public int NrArcs { get; private set; }
 
         public CubicBezier SelectedCurve => LabeledCurves[SelectedCurveIndex].Item;
-        public List<BiArc> BiArcs { get; private set; }
+        public List<Approx> Approx { get; private set; }
 
         public ICommand NextArcCommand { get; private set; }
 
@@ -160,7 +160,7 @@ namespace BiArcTutorial
             OnPropertyChanged(nameof(SelectedCurveIndex));
 
             NextArcCommand = new Command<string>((key) => {
-                SelectedArcIndex = (SelectedArcIndex + 1) % BiArcs.Count;
+                SelectedArcIndex = (SelectedArcIndex + 1) % Approx.Count;
                 OnPropertyChanged(nameof(SelectedArcIndex));
             });
         }
@@ -180,11 +180,11 @@ namespace BiArcTutorial
 
         private void ApproximateBezier()
         {
-            BiArcs = Algorithm.ApproxCubicBezier(SelectedCurve, 5, MaxError);
+            Approx = Algorithm.ApproxCubicBezier(SelectedCurve, 20, MaxError);
             SelectedArcIndex = 1;
-            NrArcs = BiArcs.Count * 2;
+            NrArcs = Approx.Count * 2;
             OnPropertyChanged(nameof(NrArcs));
-            OnPropertyChanged(nameof(BiArcs));
+            OnPropertyChanged(nameof(Approx));
             OnPropertyChanged(nameof(NumberOfArcs));
         }
 

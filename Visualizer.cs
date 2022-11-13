@@ -8,8 +8,8 @@ namespace BiArcTutorial
         public static readonly BindableProperty BezierProperty =
                 BindableProperty.Create(nameof(Bezier), typeof(CubicBezier), typeof(Visualizer), null);
 
-        public static readonly BindableProperty BiArcsProperty =
-                BindableProperty.Create(nameof(BiArcs), typeof(List<BiArc>), typeof(Visualizer), null);
+        public static readonly BindableProperty ApproxProperty =
+                BindableProperty.Create(nameof(Approx), typeof(List<Approx>), typeof(Visualizer), null);
 
         public static readonly BindableProperty SelectedArcIndexProperty =
                 BindableProperty.Create(nameof(SelectedArcIndex), typeof(int), typeof(Visualizer), null);
@@ -19,10 +19,10 @@ namespace BiArcTutorial
             set => SetValue(BezierProperty, value);
         }
 
-        public List<BiArc> BiArcs
+        public List<Approx> Approx
         {
-            get => (List<BiArc>)GetValue(BiArcsProperty);
-            set => SetValue(BiArcsProperty, value);
+            get => (List<Approx>)GetValue(ApproxProperty);
+            set => SetValue(ApproxProperty, value);
         }
 
         public int SelectedArcIndex
@@ -34,10 +34,10 @@ namespace BiArcTutorial
         public void Draw(ICanvas canvas, RectF dirtyRect)
         {
             int currArcIdx = 1;
-            foreach (var biarc in BiArcs)
+            foreach (var approx in Approx)
             {
-                DrawApproxCircle(canvas, currArcIdx++, biarc.A1);
-                DrawApproxCircle(canvas, currArcIdx++, biarc.A2);
+                DrawApproxCircle(canvas, currArcIdx++, approx.BiArc.A1);
+                DrawApproxCircle(canvas, currArcIdx++, approx.BiArc.A2);
             }
 
             canvas.StrokeColor = Colors.Black;
@@ -49,10 +49,10 @@ namespace BiArcTutorial
             canvas.DrawPath(bezierPath);
 
             currArcIdx = 1;
-            foreach (var biarc in BiArcs)
+            foreach (var approx in Approx)
             {
-                DrawApproxArc(canvas, currArcIdx++, biarc.A1);
-                DrawApproxArc(canvas, currArcIdx++, biarc.A2);
+                DrawApproxArc(canvas, currArcIdx++, approx.BiArc.A1);
+                DrawApproxArc(canvas, currArcIdx++, approx.BiArc.A2);
             }
         }
 

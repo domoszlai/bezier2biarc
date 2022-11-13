@@ -11,7 +11,7 @@
     <ContentPage.Resources>
         <local:Visualizer x:Key="drawable"
                           Bezier="{Binding SelectedCurve}"
-                          BiArcs="{Binding BiArcs}"
+                          Approx="{Binding Approx}"
                           SelectedArcIndex="{Binding SelectedArcIndex}"
                           BindingContext="{Reference pageContext}"/>
     </ContentPage.Resources>
