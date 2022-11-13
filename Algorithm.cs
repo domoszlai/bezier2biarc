@@ -143,7 +143,9 @@ namespace BiArcTutorial
 
                 // ---------------------------------------------------------------------------
                 // Calculate the maximum error along the radial direction
-                // TODO: D.J. Walton*, D.S. Meek, Approximation of a planar cubic B6zier spiral by circular arcs (1996)
+                // TODO: D.J. Walton*, D.S. Meek, Approximation of a planar cubic Bezier spiral by circular arcs (1996)
+                // I could not make the equations of the paper work, their fail to often, checking the distance
+                // evenly actually gives much better result and seems fast enough
 
                 var maxDistance = 0f;
                 var maxDistanceAt = 0f;
@@ -166,14 +168,6 @@ namespace BiArcTutorial
                     }
                 }
                 
-                // Calculate parameter value on the bezier that corresponds to the biarc joint point
-                var tj = RadialDirectionIntersection(bezier, biarc, biarc.JointAt);
-                var dj = tj != -1 ? (bezier.PointAt(tj) - biarc.PointAt(biarc.JointAt)).Length() : 0;
-                if (tj == -1)
-                {
-                    var jt2 = RadialDirectionIntersection(bezier, biarc, biarc.JointAt);
-                }
-
                 // Check if the two curves are close enough
                 if (maxDistance > tolerance)
                 {
@@ -186,7 +180,7 @@ namespace BiArcTutorial
                 else
                 {
                     // Otherwise we are done with the current bezier
-                    biarcs.Add(new Approx(bezier, biarc, null));
+                    biarcs.Add(new Approx(bezier, biarc));
                 }
             }
 
