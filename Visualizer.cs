@@ -59,9 +59,6 @@ namespace BiArcTutorial
 
             foreach (var approx in Approx)
             {
-                if (approx.DebugLines == null)
-                    continue;
-
                 foreach (var (p1,p2,color) in approx.DebugLines)
                 {
                     canvas.StrokeColor = color;

@@ -76,6 +76,11 @@ namespace BiArcTutorial
                 new Vector2(460, 365), new Vector2(440, 365),
                 new Vector2(400, 466), new Vector2(400, 365));
 
+        // Loop
+        static CubicBezier bt9 = new CubicBezier(
+                new Vector2(150, 440), new Vector2(450, 10),
+                new Vector2(50, 10), new Vector2(325, 450));
+
         public List<LabeledItem<CubicBezier>> LabeledCurves => new List<LabeledItem<CubicBezier>>
         {
             LabeledItem.Create("#1",b1),
@@ -92,7 +97,8 @@ namespace BiArcTutorial
             LabeledItem.Create("#12",bt5c),
             LabeledItem.Create("#13",bt6),
             LabeledItem.Create("#14",bt7),
-            LabeledItem.Create("#15",bt8)
+            LabeledItem.Create("#15",bt8),
+            LabeledItem.Create("#16",bt9),
         };
 
         private int _selectedArcIndex = 1;

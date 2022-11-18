@@ -8,6 +8,9 @@ namespace BiArcTutorial
     public class Algorithm
     {
 
+        const float EPS = 0.0001f;
+        const float MAXITER = 10;
+
         /// <summary>
         /// Algorithm to approximate a bezier curve with biarcs
         /// Based on: M.A. Sabin, The use of piecewise forms for the numerical representation of shape (1977)
@@ -112,7 +115,7 @@ namespace BiArcTutorial
                 var T2 = new Line(bezier.P2, C2);
 
                 // Control lines are parallel -> can't calculate triangle for biarc
-                if(T1.m == T2.m)
+                if (T1.m == T2.m)
                 {
                     var bs = bezier.Split(0.5f);
                     curves.Push(bs.Item2);
@@ -143,44 +146,82 @@ namespace BiArcTutorial
 
                 // ---------------------------------------------------------------------------
                 // Calculate the maximum error along the radial direction
-                // TODO: D.J. Walton*, D.S. Meek, Approximation of a planar cubic Bezier spiral by circular arcs (1996)
-                // I could not make the equations of the paper work, their fail to often, checking the distance
-                // evenly actually gives much better result and seems fast enough
+                // D.J. Walton*, D.S. Meek, Approximation of a planar cubic B6zier spiral by circular arcs (1996)
 
-                var maxDistance = 0f;
-                var maxDistanceAt = 0f;
-
-                var parameterStep = 1f / (nrPointsToCheck + 1);
-
-                for (int i = 1; i <= nrPointsToCheck; i++)
+                // Calculate parameter value of the bezier that corresponds to the biarc joint point
+                var tj = RadialDirectionIntersection(bezier, biarc, biarc.JointAt);
+                if (tj != -1)
                 {
-                    var t = parameterStep * i;
-                    var bt = RadialDirectionIntersection(bezier, biarc, t);                    
-                    if(bt != -1)
+                    var dj = (bezier.PointAt(tj) - biarc.PointAt(biarc.JointAt)).Length();
+
+                    // Valid in (0,tj]
+                    var g0 = new Func<float, float>(u =>
                     {
-                        var distance = (bezier.PointAt(bt) - biarc.PointAt(t)).Length();
+                        return Vector2.Dot(bezier.PointAt(u) - biarc.A1.C, bezier.FirstDerivativeAt(u));
+                    });
 
-                        if (distance > maxDistance)
-                        {
-                            maxDistance = distance;
-                            maxDistanceAt = bt;
-                        }
+                    var g0d = new Func<float, float>(u =>
+                    {
+                        var d = bezier.FirstDerivativeAt(u);
+                        return Vector2.Dot(d, d) +
+                               Vector2.Dot(bezier.PointAt(u) - biarc.A1.C, bezier.SecondDerivativeAt(u));
+                    });
+
+                    // Valid in [tj,1)
+                    var g1 = new Func<float, float>(u =>
+                    {
+                        return Vector2.Dot(bezier.PointAt(u) - biarc.A2.C, bezier.FirstDerivativeAt(u));
+                    });
+
+                    var g1d = new Func<float, float>(u =>
+                    {
+                        var d = bezier.FirstDerivativeAt(u);
+                        return Vector2.Dot(d, d) +
+                               Vector2.Dot(bezier.PointAt(u) - biarc.A2.C, bezier.SecondDerivativeAt(u));
+                    });
+
+                    var tb0 = FindRoot(g0, g0d, 0 + EPS, tj);
+                    var d0 = 0f;
+                    if (tb0 != -1)
+                    {
+                        var vb0 = bezier.PointAt(tb0);
+                        d0 = Math.Abs((vb0 - biarc.A1.C).Length() - biarc.A1.r);
                     }
-                }
-                
-                // Check if the two curves are close enough
-                if (maxDistance > tolerance)
-                {
-                    // If not, split the bezier curve the point where the distance is the maximum
-                    // and try again with the two halfs
-                    var bs = bezier.Split(maxDistanceAt);
-                    curves.Push(bs.Item2);
-                    curves.Push(bs.Item1);
-                }
-                else
-                {
-                    // Otherwise we are done with the current bezier
-                    biarcs.Add(new Approx(bezier, biarc));
+
+                    var tb1 = FindRoot(g1, g1d, tj, 1 - EPS);
+                    var d1 = 0f;
+                    if (tb1 != -1)
+                    {
+                        var vb1 = bezier.PointAt(tb1);
+                        d1 = Math.Abs((vb1 - biarc.A2.C).Length() - biarc.A2.r);
+                    }
+
+                    var maxDistance = Math.Max(dj, Math.Max(d0, d1));
+                    var maxDistanceAt = tj;
+
+                    if (d0 > d1 && d0 > dj)
+                    {
+                        maxDistanceAt = tb0;
+                    }
+                    else if(d1 >= d0 && d1 > dj)
+                    {
+                        maxDistanceAt = tb1;
+                    }
+
+                    // Check if the two curves are close enough
+                    if (maxDistance > tolerance)
+                    {
+                        // If not, split the bezier curve the point where the distance is the maximum
+                        // and try again with the two halfs
+                        var bs = bezier.Split(maxDistanceAt);
+                        curves.Push(bs.Item2);
+                        curves.Push(bs.Item1);
+                    }
+                    else
+                    {
+                        // Otherwise we are done with the current bezier
+                        biarcs.Add(new Approx(bezier, biarc));
+                    }
                 }
             }
 
@@ -208,82 +249,58 @@ namespace BiArcTutorial
                 return Vector2.Dot(bezier.PointAt(u) - P, H);
             });
 
-            // https://proofwiki.org/wiki/Derivative_of_Dot_Product_of_Vector-Valued_Functions
             var df = new Func<float, float>(u =>
             {
-                return Vector2.Dot(bezier.FirstDerivativePointAt(u), H);
+                return Vector2.Dot(bezier.FirstDerivativeAt(u), H);
             });
 
             return FindRoot(f, df, 0, 1);
         }
 
         /// <summary>
-        /// Tries to find the root of f in interval [a,b] using the bisection method.
+        /// Tries to find the root of f in interval [lowerBound,upperBound] using a combination of
+        /// Newton and bisection methods.
         /// It is supposed to have at most one solution. If no solution is found, returns -1
         /// </summary>
-        public static float FindRoot(Func<float, float> f, float a, float b)
+        public static float FindRoot(Func<float, float> f, Func<float, float> df, float lowerBound, float upperBound)
         {
-            if (f(a) * f(b) >= 0) return -1;
+            var fmin = f(lowerBound);
+            var fmax = f(upperBound);
 
-            var maxiter = 100;
-            var eps = 0.001;
+            if (fmin * fmax >= 0) return -1;
 
-            float x = default(float);
-            float v = default(float);
+            var root = (lowerBound + upperBound) / 2;
+            var fx = f(root);
 
-            while (maxiter > 0)
+            for (var i=0; i<MAXITER && Math.Abs(fx) >= EPS; i++)
             {
-                x = (a + b) / 2;
-                v = f(x);
+                var h = f(root) / df(root);
 
-                if (Math.Abs(v) < eps)
+                // overshoot or undershoot -> switch to bisection
+                if (root - h < lowerBound || root - h > upperBound)
                 {
-                    return x;
-                }
-
-                if(f(a) * v < 0)
-                {
-                    b = x;
-                }
-                else if(f(b) * v < 0)
-                {
-                    a = x;
+                    if (fmin * fx < 0)
+                    {
+                        upperBound = root;
+                        fmax = fx;
+                    }
+                    else if (fmax * fx < 0)
+                    {
+                        lowerBound = root;
+                        fmin = fx;
+                    }
+                    root = (lowerBound + upperBound) / 2;
                 }
                 else
                 {
-                    return -1;
+                    root = root - h;
                 }
 
-                maxiter -= 1;
+                fx = f(root);
             }
 
-            // We must be close enough now
-            return x;
-        }
-
-
-        /// <summary>
-        /// Tries to find the root of f in interval [a,b] using the Newton method.
-        /// It is supposed to have at most one solution. If no solution is found, returns -1
-        /// </summary>
-        public static float FindRoot(Func<float, float> f, Func<float, float> d, float a, float b)
-        {
-            if (f(a) * f(b) >= 0) return -1;
-
-            var maxiter = 100;
-            var eps = 0.001;
-
-            var x = (a + b) / 2;
-            var h = f(a) / d(a);
-
-            while (maxiter > 0 && Math.Abs(h) >= eps)
-            {
-                h = f(x) / d(x);
-                x = x - h;
-                maxiter -= 1;
-            }
-
-            return x;
+            // If i==0, we may not reached tolarence yet, but hopefully it is close enough
+            return root;
         }
     }
 }
