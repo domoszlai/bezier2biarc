@@ -267,7 +267,9 @@ namespace BiArcTutorial
             var fmin = f(lowerBound);
             var fmax = f(upperBound);
 
-            if (fmin * fmax >= 0) return -1;
+            if (fmin * fmax > 0) return -1;
+            if (fmin == 0) return lowerBound;
+            if (fmax == 0) return upperBound;
 
             var root = (lowerBound + upperBound) / 2;
             var fx = f(root);
@@ -284,7 +286,7 @@ namespace BiArcTutorial
                         upperBound = root;
                         fmax = fx;
                     }
-                    else if (fmax * fx < 0)
+                    else // (fmax * fx < 0)
                     {
                         lowerBound = root;
                         fmin = fx;
